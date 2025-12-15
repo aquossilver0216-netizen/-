@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>送る前にアドバイス！</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root{
+  --main:#ff6fae;
+  --sub:#ffd6e8;
+  --bg:#fff7fb;
+  --text:#333;
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  background:var(--bg);
+  padding:20px;
+}
+
+.app{
+  max-width:430px;
+  margin:auto;
+  background:#fff;
+  border-radius:22px;
+  box-shadow:0 10px 30px rgba(255,111,174,0.25);
+  overflow:hidden;
+}
+
+.header{
+  background:linear-gradient(135deg,#ff8fc7,#ff6fae);
+  padding:20px;
+  color:white;
+  text-align:center;
+}
+
+.header h1{
+  margin:0;
+  font-size:22px;
+}
+
+.header p{
+  font-size:13px;
+  opacity:0.9;
+  margin-top:6px;
+}
+
+.content{
+  padding:18px;
+}
+
+textarea{
+  width:100%;
+  height:90px;
+  border-radius:14px;
+  border:1px solid #eee;
+  padding:14px;
+  font-size:15px;
+  background:#fff;
+  margin-bottom:14px;
+}
+
+select{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid #eee;
+  margin-bottom:14px;
+  font-size:15px;
+}
+
+.toggle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  margin-bottom:12px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border-radius:999px;
+  border:none;
+  background:var(--main);
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  box-shadow:0 6px 16px rgba(255,111,174,0.4);
+}
+
+.result{
+  margin-top:16px;
+  background:#fff0f7;
+  border-radius:16px;
+  padding:14px;
+  display:none;
+}
+
+.badge{
+  font-weight:bold;
+  font-size:16px;
+  margin-bottom:6px;
+}
+
+.ok{color:#2ecc71;}
+.warn{color:#f1c40f;}
+.ng{color:#e74c3c;}
+
+.analysis{
+  font-size:13px;
+  color:#555;
+  margin-top:6px;
+}
+
+.premiumBox{
+  background:white;
+  border-radius:12px;
+  padding:10px;
+  margin-top:10px;
+  font-size:14px;
+}
+
+.lock{
+  font-size:12px;
+  color:#aaa;
+  text-align:center;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>送る前にアドバイス！</h1>
+    <p>そのLINE、今送って大丈夫？</p>
+  </div>
+
+  <div class="content">
+    <textarea id="text" placeholder="今から送る文章を入れてね"></textarea>
+
+    <select id="situation">
+      <option value="">今の状況を選んでね</option>
+      <option>既読スルー後</option>
+      <option>会話が終わりそう</option>
+      <option>デート後</option>
+      <option>夜遅め🌙</option>
+    </select>
+
+    <div class="toggle">
+      <input type="checkbox" id="premium">
+      <label for="premium">プレミアム（月300円）</label>
+    </div>
+
+    <button onclick="analyze()">アドバイスもらう💬</button>
+
+    <div class="result" id="result">
+      <div class="badge" id="judge"></div>
+      <div class="analysis" id="analysis"></div>
+
+      <div class="premiumBox" id="premiumBox">
+        ✍ <b>修正版アドバイス</b>
+        <div id="fix"></div>
+      </div>
+    </div>
+
+    <div class="lock" id="paywall">
+      🔒 修正版・深夜分析はプレミアム限定
+    </div>
+  </div>
+</div>
+
+<script>
+let freeCount=0;
+function analyze(){
+const text=document.getElementById("text").value;
+const situation=document.getElementById("situation").value;
+const premium=document.getElementById("premium").checked;
+
+if(!text||!situation){alert("文章と状況を入れてね！");return;}
+
+if(!premium){freeCount++; if(freeCount>3){alert("今日はここまで！");return;}}
+
+let score=0,reasons=[];
+if(text.length>40){score--;reasons.push("ちょっと長め");}
+if(/好き|会いたい|寂しい/.test(text)){score-=2;reasons.push("感情強め");}
+if(/[?？]/.test(text)){score++;reasons.push("返信しやすい");}
+
+let judge,cls,fix;
+if(score>=1){judge="👍 送ってOK";cls="ok";fix="今のままで大丈夫！";}
+else if(score>=-1){judge="⚠️ ちょい注意";cls="warn";fix="語尾をやわらかくすると◎";}
+else{judge="❌ 今はやめとこ";cls="ng";fix="時間を置くのがおすすめ。";}
+
+document.getElementById("judge").innerHTML=`<span class="${cls}">${judge}</span>`;
+document.getElementById("analysis").innerText="分析："+reasons.join("・");
+
+if(premium){
+ document.getElementById("premiumBox").style.display="block";
+ document.getElementById("fix").innerText=fix;
+ document.getElementById("paywall").style.display="none";
+}else{
+ document.getElementById("premiumBox").style.display="none";
+ document.getElementById("paywall").style.display="block";
+}
+
+document.getElementById("result").style.display="block";
+}
+</script>
+
+</body>
+</html>
